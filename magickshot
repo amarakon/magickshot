@@ -1,7 +1,7 @@
 #!/bin/sh
 
 dir=~/.local/share/imagemagick/Screenshots
-title="$(date | awk 'OFS="-" {print $4,$3,$2,$1,$5}' | tr '[:upper:]' '[:lower:]')"
+title="$(date +'%Y-%m-%d_%R:%S')"
 dir2=$dir/import-root-$title.png
 sound_dir=/usr/share/sounds/deepin/stereo
 sound_1=$sound_dir/camera-shutter.wav
