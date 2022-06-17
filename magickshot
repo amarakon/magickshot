@@ -8,13 +8,17 @@ sound_1=$sound_dir/camera-shutter.wav
 sound_2=$sound_dir/dialog-error.wav
 
 if [ "$1" = "--select" -o "$1" = "-s" ]; then
-    #if [ "$(ps axh | grep '0:00 unclutter' | wc -l)" -ge 1 ]; then
-	#pkill unclutter && import $dir2
-    #else
+    if [ "$(pidof unclutter | wc -l)" -ge 1 ]; then
+	xdotool mousemove_relative 1 0 && import $dir2 && pl $sound_1 || pl $sound_2
+    else
 	import $dir2 && pl $sound_1 || pl $sound_2
-    #fi
+    fi
 elif [ "$1" = "--root" -o "$1" = "-r" ]; then
-    import -window root $dir2 && pl $sound_1 || pl $sound_2
+    if [ -n "$2" ]; then
+        import -window "$2" $dir2 && pl $sound_1 || pl $sound_2
+    else
+        import -window root $dir2 && pl $sound_1 || pl $sound_2
+    fi
 else
     import -window root $dir2 && pl $sound_1 || pl $sound_2
 fi
