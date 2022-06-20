@@ -1,0 +1,55 @@
+---
+title: MagickShot – ImageMagick Screenshot
+output: amaryaml::github
+---
+
+MagickShot is a program to take screenshots using ImageMagick.
+It is more minimal than using scrot but more convenient than using ImageMagick.
+It is the perfect balance between the two.
+
+# Usage
+
+```sh
+`# user` magickshot # take a screenshot of the entire screen
+`# user` magickshot -s # take a screenshot of the selection
+```
+
+# Dependencies
+
+#. ImageMagick
+
+# Installation
+
+## Universal
+
+```sh
+`# user` git clone https://github.com/amarakon/magickshot
+`# user` cd magickshot
+`# root` make install
+```
+
+## Gentoo
+
+```sh
+`# root` eselect repository add amarlay git https://github.com/amarakon/amarlay
+`# root` emerge --sync amarlay
+`# root` emerge media-gfx/magickshot
+```
+
+# Uninstallation
+
+## Universal
+
+```sh
+`# user` cd magickshot
+`# root` make uninstall
+```
+
+## Gentoo
+
+```sh
+`# root` emerge -c media-gfx/magickshot
+# Remove my overlay (optional)
+`# root` eselect-repository remove -f amarlay
+`# root` emerge --sync
+```
