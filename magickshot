@@ -58,7 +58,9 @@ help() {
 
 Options:
  -s|--selection │ Take a screenshot of the selection
- -w|--window    │ Take a screenshot of the specified window (default is root)
+ -w|--window    │ Take a screenshot of the specified window (default is focused window)
+ -m|--monitor   │ Take a screenshot of the focused monitor
+ -d|--display   │ Take a screenshot of the entire display
  -h|--help	│ Print this help message and exit
 
 Use both the selection and window arguments at the same time and you will be able to use the cursor to select a specific window to take a screenshot of.
