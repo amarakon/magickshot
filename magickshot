@@ -2,29 +2,87 @@
 
 dir=~/.local/share/magickshot/Screenshots
 title="$(date +'%Y-%m-%d_%R:%S')"
-dir2=$dir/import-root-$title.png
-sound_dir=/usr/share/sounds/deepin/stereo
-sound_1=$sound_dir/camera-shutter.wav
-sound_2=$sound_dir/dialog-error.wav
+dir2=$dir/screenshot-root-$title.png
 
-if [ "$1" = "--select" -o "$1" = "-s" ]; then
-    if [ "$(pidof unclutter | wc -l)" -ge 1 ]; then
-	xdotool mousemove_relative 1 0 && import $dir2 && pl $sound_1 || pl $sound_2
+main() {
+    parse_opts "$@"
+
+    if [ -n "$help" ]; then
+	help
+    elif [ -n "$select" ]; then
+	screenshot
+    elif [ -n "$window" ]; then
+	if [ -n "$2" ]; then
+	    screenshot -window "$2"
+	else
+	    screenshot -window root
+	fi
+    elif [ -n "$screen" -a -n "$window" ]; then
+	screenshot -screen
+    elif [ $# -eq 0 ]; then
+	screenshot -window root
     else
-	import $dir2 && pl $sound_1 || pl $sound_2
+	help
     fi
-elif [ "$1" = "--window" -o "$1" = "-w" ]; then
-    if [ "$(pidof unclutter | wc -l)" -ge 1 ]; then
-	xdotool mousemove_relative 1 0 && import -screen $dir2 && pl $sound_1 || pl $sound_2
-    else
-	import -screen $dir2 && pl $sound_1 || pl $sound_2
+}
+
+pl() {
+    setsid mpv --really-quiet --pause=no --keep-open=no "$@" &>/dev/null
+}
+
+sound() {
+    sound_dir=/usr/share/sounds/deepin/stereo
+
+    if [ -d $sound_dir ]; then
+	sound_1=$sound_dir/camera-shutter.wav
+	sound_2=$sound_dir/dialog-error.wav
+
+	pl $sound_1 || pl $sound_2
     fi
-elif [ "$1" = "--root" -o "$1" = "-r" ]; then
-    if [ -n "$2" ]; then
-        import -window "$2" $dir2 && pl $sound_1 || pl $sound_2
-    else
-        import -window root $dir2 && pl $sound_1 || pl $sound_2
-    fi
-else
-    import -window root $dir2 && pl $sound_1 || pl $sound_2
-fi
+}
+
+screenshot() {
+    [ "$(pidof unclutter xbanish | wc -l)" -ge 1 ] && xdotool mousemove_relative 1 0 ; import "$@" $dir2 && sound
+}
+
+help() {
+    printf "Usage:	magickshot [options]
+
+Options:
+ -s|--selection │ Take a screenshot of the selection
+ -w|--window    │ Take a screenshot of the specified window (default is root)
+ -h|--help	│ Print this help message and exit
+
+Use both the selection and window arguments at the same time and you will be able to use the cursor to select a specific window to take a screenshot of.
+\n"
+}
+
+parse_opts() {
+    while [ $# -gt 0 ]; do
+        key="$1"
+	case $key in
+	-h|--help)
+	    help=1
+	    shift
+	    ;;
+	-s|--select)
+	    select=1
+	    shift
+	    ;;
+	-w|--window)
+	    window=1
+	    shift
+	    ;;
+	-sw|-ws)
+	    select=1
+	    window=1
+	    shift
+	    ;;
+        *)
+            shift
+            ;;
+        esac
+    done
+}
+
+main "$@"
