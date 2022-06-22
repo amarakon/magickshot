@@ -1,6 +1,6 @@
 #!/bin/sh
 
-dir=~/.local/share/imagemagick/Screenshots
+dir=~/.local/share/magickshot/Screenshots
 title="$(date +'%Y-%m-%d_%R:%S')"
 dir2=$dir/import-root-$title.png
 sound_dir=/usr/share/sounds/deepin/stereo
@@ -12,6 +12,12 @@ if [ "$1" = "--select" -o "$1" = "-s" ]; then
 	xdotool mousemove_relative 1 0 && import $dir2 && pl $sound_1 || pl $sound_2
     else
 	import $dir2 && pl $sound_1 || pl $sound_2
+    fi
+elif [ "$1" = "--window" -o "$1" = "-w" ]; then
+    if [ "$(pidof unclutter | wc -l)" -ge 1 ]; then
+	xdotool mousemove_relative 1 0 && import -screen $dir2 && pl $sound_1 || pl $sound_2
+    else
+	import -screen $dir2 && pl $sound_1 || pl $sound_2
     fi
 elif [ "$1" = "--root" -o "$1" = "-r" ]; then
     if [ -n "$2" ]; then
