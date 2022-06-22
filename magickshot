@@ -9,6 +9,8 @@ main() {
 
     if [ -n "$help" ]; then
 	help
+    elif [ -n "$selection" -a -n "$window" ]; then
+	xwdshot
     elif [ -n "$selection" ]; then
 	screenshot
     elif [ -n "$window" ]; then
@@ -17,8 +19,6 @@ main() {
 	else
 	    screenshot -window root
 	fi
-    elif [ -n "$screen" -a -n "$window" ]; then
-	screenshot -screen
     elif [ $# -eq 0 ]; then
 	screenshot -window root
     else
@@ -43,6 +43,10 @@ sound() {
 
 screenshot() {
     [ "$(pidof unclutter xbanish | wc -l)" -ge 1 ] && xdotool mousemove_relative 1 0 ; import "$@" $dir2 && sound
+}
+
+xwdshot() {
+    xwd -nobdrs | convert xwd:- $dir2 && sound
 }
 
 help() {
