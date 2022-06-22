@@ -5,6 +5,7 @@ MagickShot – ImageMagick Screenshot
 
 -   [Usage](#usage)
 -   [Dependencies](#dependencies)
+    -   [Optional](#optional)
 -   [Installation](#installation)
     -   [Universal](#universal)
     -   [Gentoo](#gentoo)
@@ -14,19 +15,34 @@ MagickShot – ImageMagick Screenshot
 
 MagickShot is a program to take screenshots using ImageMagick. It is
 more minimal than using scrot but more convenient than using
-ImageMagick. It is the perfect balance between the two.
+ImageMagick. It is the perfect balance between the two. It also supports
+notification sounds.
 
 ## Usage
 
 ``` sh
-`# user` magickshot -s # take a screenshot of the selection
-`# user` magickshot -w # take a screenshot of the specied window (default is root)
-`# user` magickshot -sw # select and screenshot a window
+`# user` magickshot --selection # take a screenshot of the selection
+`# user` magickshot --window # take a screenshot of the specied window (default is focused window)
+`# user` magickshot --monitor # take a screenshot of the focused monitor
+`# user` magickshot --display # take a screenshot of the entire display
 ```
+
+The default option is `--monitor`.
 
 ## Dependencies
 
-1.  ImageMagick
+1.  imagemagick
+2.  xdotool
+3.  xrandr
+4.  [printmon](https://github.com/amarakon/printmon)
+
+### Optional
+
+The following is used for notification sounds:
+
+1.  any media player (set the `PLAYER` environment variable, the default
+    is mpv)
+2.  deepin-sound-theme
 
 ## Installation
 

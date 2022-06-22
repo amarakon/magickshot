@@ -1,33 +1,37 @@
 #!/bin/sh
 
-dir=~/.local/share/magickshot/Screenshots
-title="$(date +'%Y-%m-%d_%R:%S')"
-dir2=$dir/import-$title.png
-
 main() {
     parse_opts "$@"
 
+    dir=~/.local/share/magickshot/Screenshots
+    title="$(date +'%Y-%m-%d_%R:%S')"
+    dir2=$dir/import-$title.png
+    mon="$(randr | cut -d ' ' -f 3)"
+
     if [ -n "$help" ]; then
 	help
-    elif [ -n "$selection" -a -n "$window" ]; then
-	xwdshot
     elif [ -n "$selection" ]; then
 	screenshot
     elif [ -n "$window" ]; then
 	if [ -n "$2" ]; then
 	    screenshot -window "$2"
 	else
-	    screenshot -window root
+	    screenshot -window $(xdotool getwindowfocus)
 	fi
-    elif [ $# -eq 0 ]; then
+    elif [ -n "$monitor" ]; then
+	screenshot -window root && magick -extract $mon $dir2 $dir2
+    elif [ -n "$display" ]; then
 	screenshot -window root
+    elif [ $# -eq 0 ]; then
+	screenshot -window root && magick -extract $mon $dir2 $dir2
     else
 	help
     fi
 }
 
 pl() {
-    setsid mpv --really-quiet --pause=no --keep-open=no "$@" &>/dev/null
+    [ -z $PLAYER ] && PLAYER="mpv"
+    setsid $PLAYER --really-quiet --pause=no --keep-open=no "$@" &>/dev/null
 }
 
 sound() {
@@ -45,8 +49,8 @@ screenshot() {
     [ "$(pidof unclutter xbanish | wc -l)" -ge 1 ] && xdotool mousemove_relative 1 0 ; import "$@" $dir2 && sound
 }
 
-xwdshot() {
-    xwd -nobdrs | convert xwd:- $dir2 && sound
+randr() {
+    xrandr | grep ' connected' | sed 's/ primary//g' | tail -$(expr $(printmon) + 1) | head -1
 }
 
 help() {
@@ -77,9 +81,12 @@ parse_opts() {
 	    window=1
 	    shift
 	    ;;
-	-sw|-ws)
-	    selection=1
-	    window=1
+	-m|--monitor)
+	    monitor=1
+	    shift
+	    ;;
+	-d|--display)
+	    display=1
 	    shift
 	    ;;
         *)

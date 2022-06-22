@@ -6,18 +6,32 @@ output: amaryaml::github
 MagickShot is a program to take screenshots using ImageMagick.
 It is more minimal than using scrot but more convenient than using ImageMagick.
 It is the perfect balance between the two.
+It also supports notification sounds.
 
 # Usage
 
 ```sh
-`# user` magickshot -s # take a screenshot of the selection
-`# user` magickshot -w # take a screenshot of the specied window (default is root)
-`# user` magickshot -sw # select and screenshot a window
+`# user` magickshot --selection # take a screenshot of the selection
+`# user` magickshot --window # take a screenshot of the specied window (default is focused window)
+`# user` magickshot --monitor # take a screenshot of the focused monitor
+`# user` magickshot --display # take a screenshot of the entire display
 ```
+
+The default option is `--monitor`.
 
 # Dependencies
 
-#. ImageMagick
+#. imagemagick
+#. xdotool
+#. xrandr
+#. [printmon](https://github.com/amarakon/printmon)
+
+## Optional
+
+The following is used for notification sounds:
+
+#. any media player (set the `PLAYER` environment variable, the default is mpv)
+#. deepin-sound-theme
 
 # Installation
 
