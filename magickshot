@@ -2,7 +2,7 @@
 
 dir=~/.local/share/magickshot/Screenshots
 title="$(date +'%Y-%m-%d_%R:%S')"
-dir2=$dir/screenshot-root-$title.png
+dir2=$dir/import-$title.png
 
 main() {
     parse_opts "$@"
