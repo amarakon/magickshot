@@ -10,8 +10,9 @@ It is the perfect balance between the two.
 # Usage
 
 ```sh
-`# user` magickshot # take a screenshot of the entire screen
 `# user` magickshot -s # take a screenshot of the selection
+`# user` magickshot -w # take a screenshot of the specied window (default is root)
+`# user` magickshot -sw # select and screenshot a window
 ```
 
 # Dependencies
