@@ -23,6 +23,7 @@ notification sounds.
 ``` sh
 `# user` magickshot --selection # take a screenshot of the selection
 `# user` magickshot --window # take a screenshot of the specied window (default is focused window)
+`# user` magickshot --selection --window # use the cursor to select a window to screenshot
 `# user` magickshot --monitor # take a screenshot of the focused monitor
 `# user` magickshot --display # take a screenshot of the entire display
 ```
@@ -34,7 +35,8 @@ The default option is `--monitor`.
 1.  imagemagick
 2.  xdotool
 3.  xrandr
-4.  [printmon](https://github.com/amarakon/printmon)
+4.  xwd
+5.  [printmon](https://github.com/amarakon/printmon)
 
 ### Optional
 

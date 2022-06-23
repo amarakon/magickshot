@@ -10,6 +10,8 @@ main() {
 
     if [ -n "$help" ]; then
 	help
+    elif [ -n "$selection" -a -n "$window" ]; then
+	xwdshot
     elif [ -n "$selection" ]; then
 	screenshot
     elif [ -n "$window" ]; then
@@ -47,6 +49,10 @@ sound() {
 
 screenshot() {
     [ "$(pidof unclutter xbanish | wc -l)" -ge 1 ] && xdotool mousemove_relative 1 0 ; import "$@" $dir2 && sound
+}
+
+xwdshot() {
+    xwd -nobdrs | convert xwd:- $dir2 && sound
 }
 
 randr() {
@@ -89,6 +95,11 @@ parse_opts() {
 	    ;;
 	-d|--display)
 	    display=1
+	    shift
+	    ;;
+	-sw|-ws)
+	    selection=1
+	    window=1
 	    shift
 	    ;;
         *)
