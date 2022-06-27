@@ -4,21 +4,22 @@ main() {
     parse_opts "$@"
 
     dir=~/.local/share/magickshot/Screenshots
-    title="$(date +'%Y-%m-%d_%R:%S')"
+    title="`date +'%Y-%m-%d_%R:%S'`"
     dir2=$dir/import-$title.png
-    mon="$(randr | cut -d ' ' -f 3)"
+    mon="`randr | cut -d ' ' -f 3`"
 
     if [ -n "$help" ]; then
 	help
     elif [ -n "$selection" -a -n "$window" ]; then
-	xwdshot
+	screenshot -window `xdotool selectwindow`
     elif [ -n "$selection" ]; then
+	[ `pidof unclutter xbanish | wc -l` -ge 1 ] && xdotool mousemove_relative 1 0
 	screenshot
     elif [ -n "$window" ]; then
 	if [ -n "$2" ]; then
 	    screenshot -window "$2"
 	else
-	    screenshot -window $(xdotool getwindowfocus)
+	    screenshot -window `xdotool getactivewindow`
 	fi
     elif [ -n "$monitor" ]; then
 	screenshot -window root && magick -extract $mon $dir2 $dir2
@@ -47,20 +48,12 @@ sound() {
     fi
 }
 
-screenshot() {
-    [ "$(pidof unclutter xbanish | wc -l)" -ge 1 ] && xdotool mousemove_relative 1 0 ; import "$@" $dir2 && sound
-}
+screenshot() { import "$@" $dir2 && sound; }
 
-xwdshot() {
-    xwd -nobdrs | convert xwd:- $dir2 && sound
-}
-
-randr() {
-    xrandr | grep ' connected' | sed 's/ primary//g' | tail -$(expr $(printmon) + 1) | head -1
-}
+randr() { xrandr | grep ' connected' | sed 's/ primary//g' | tail -$(expr $(printmon) + 1) | head -1; }
 
 help() {
-    printf "Usage:	magickshot [options]
+    echo "Usage:	magickshot [options]
 
 Options:
  -s|--selection │ Take a screenshot of the selection
@@ -70,7 +63,7 @@ Options:
  -h|--help	│ Print this help message and exit
 
 Use both the selection and window arguments at the same time and you will be able to use the cursor to select a specific window to take a screenshot of.
-\n"
+"
 }
 
 parse_opts() {
