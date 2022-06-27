@@ -13,7 +13,7 @@ main() {
     elif [ -n "$selection" -a -n "$window" ]; then
 	screenshot -window `xdotool selectwindow`
     elif [ -n "$selection" ]; then
-	[ `pidof unclutter xbanish | wc -l` -ge 1 ] && xdotool mousemove_relative 1 0
+	xdotool mousemove_relative 1 0 ; xdotool mousemove_relative -- -1 0
 	screenshot
     elif [ -n "$window" ]; then
 	if [ -n "$2" ]; then
