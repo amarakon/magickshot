@@ -53,7 +53,7 @@ screenshot() { import "$@" $dir2 && sound; }
 randr() { xrandr | grep ' connected' | sed 's/ primary//g' | tail -$(expr $(printmon) + 1) | head -1; }
 
 help() {
-    echo "Usage:	magickshot [options]
+    printf "Usage:	magickshot [options]
 
 Options:
  -s|--selection │ Take a screenshot of the selection
@@ -67,39 +67,27 @@ Use both the selection and window arguments at the same time and you will be abl
 }
 
 parse_opts() {
-    while [ $# -gt 0 ]; do
-        key="$1"
-	case $key in
-	-h|--help)
-	    help=1
-	    shift
-	    ;;
-	-s|--selection)
-	    selection=1
-	    shift
-	    ;;
-	-w|--window)
-	    window=1
-	    shift
-	    ;;
-	-m|--monitor)
-	    monitor=1
-	    shift
-	    ;;
-	-d|--display)
-	    display=1
-	    shift
-	    ;;
-	-sw|-ws)
-	    selection=1
-	    window=1
-	    shift
-	    ;;
-        *)
-            shift
-            ;;
-        esac
+    die() { echo "$*" >&2; exit 2; }  # complain to STDERR and exit with error
+    needs_arg() { [ -z "$OPTARG" ] && die "No arg for --$OPT option"; }
+
+    while getopts hswmd-: OPT; do
+	# support long options: https://stackoverflow.com/a/28466267/519360
+	if [ "$OPT" = "-" ]; then   # long option: reformulate OPT and OPTARG
+	    OPT="${OPTARG%%=*}"       # extract long option name
+	    OPTARG="${OPTARG#$OPT}"   # extract long option argument (may be empty)
+	    OPTARG="${OPTARG#=}"      # if long option argument, remove assigning `=`
+	fi
+	case "$OPT" in
+	    h | help)     	help=1 ;;
+	    s | selection)	selection=1 ;;
+	    w | window)		window=1 ;;
+	    m | monitor)	monitor=1 ;;
+	    d | display)	display=1 ;;
+	    ??*)          	die "Illegal option --$OPT" ;;  # bad long option
+	    ?)            	exit 2 ;;  # bad short option (error reported via getopts)
+	esac
     done
+    shift $((OPTIND-1)) # remove parsed options and args from $@ list
 }
 
 main "$@"
