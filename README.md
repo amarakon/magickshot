@@ -35,8 +35,7 @@ The default option is `--monitor`.
 1.  imagemagick
 2.  xdotool
 3.  xrandr
-4.  xwd
-5.  [printmon](https://github.com/amarakon/printmon)
+4.  [printmon](https://github.com/amarakon/printmon)
 
 ### Optional
 
