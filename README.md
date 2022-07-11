@@ -12,6 +12,7 @@ MagickShot – ImageMagick Screenshot
 -   [Uninstallation](#uninstallation)
     -   [Universal](#universal-1)
     -   [Gentoo](#gentoo-1)
+-   [Configuration](#configuration)
 
 MagickShot is a program to take screenshots using ImageMagick. It is
 more minimal than using scrot but more convenient than using
@@ -24,11 +25,9 @@ notification sounds.
 `# user` magickshot --selection # take a screenshot of the selection
 `# user` magickshot --window # take a screenshot of the specied window (default is focused window)
 `# user` magickshot --selection --window # use the cursor to select a window to screenshot
-`# user` magickshot --monitor # take a screenshot of the focused monitor
+`# user` magickshot --monitor # take a screenshot of the specified monitor (default option) (default is focused monitor, count starts from 0)
 `# user` magickshot --display # take a screenshot of the entire display
 ```
-
-The default option is `--monitor`.
 
 ## Dependencies
 
@@ -79,4 +78,16 @@ The following is used for notification sounds:
 # Remove my overlay (optional)
 `# root` eselect-repository remove -f amarlay
 `# root` emerge --sync
+```
+
+## Configuration
+
+You can change the default options for MagickShot via the configuration
+file. The configuration file is located in the configuration directory,
+so usually `~/.config/magickshot/magickshot.conf`. Here is an example
+configuration:
+
+``` sh
+output_directory=~/Images/Screenshots
+title="%Y-%d_%R:%S"
 ```

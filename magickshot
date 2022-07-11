@@ -3,33 +3,16 @@
 main() {
     parse_opts "$@"
 
-    dir=~/.local/share/magickshot/Screenshots
-    title="`date +'%Y-%m-%d_%R:%S'`"
-    dir2=$dir/import-$title.png
-    mon="`randr | cut -d ' ' -f 3`"
+    [ -z "$output_directory" ] && output_directory=~/.local/share/magickshot/Screenshots
+    [ -z "$title" ] && title="`date +'%Y-%m-%d_%R:%S'`"
+    [ -z "$output_file" ] && output_file=$output_directory/import-$title.png
 
-    if [ -n "$help" ]; then
-	help
-    elif [ -n "$selection" -a -n "$window" ]; then
-	screenshot -window `xdotool selectwindow`
-    elif [ -n "$selection" ]; then
-	xdotool mousemove_relative 1 0 ; xdotool mousemove_relative -- -1 0
-	screenshot
-    elif [ -n "$window" ]; then
-	if [ -n "$2" ]; then
-	    screenshot -window "$2"
-	else
-	    screenshot -window `xdotool getactivewindow`
-	fi
-    elif [ -n "$monitor" ]; then
-	screenshot -window root && magick -extract $mon $dir2 $dir2
-    elif [ -n "$display" ]; then
-	screenshot -window root
-    elif [ $# -eq 0 ]; then
-	screenshot -window root && magick -extract $mon $dir2 $dir2
-    else
-	help
-    fi
+    { [ -n "$help" ] && help; } ||
+    { [ -n "$selection" -a -n "$window" ] && screenshot -window `xdotool selectwindow`; } ||
+    { [ -n "$selection" ] && xdotool mousemove_relative 1 0 && xdotool mousemove_relative -- -1 0 && screenshot; } ||
+    { [ -n "$window" ] && screenshot -window "$window"; } ||
+    { [ -n "$display" ] && screenshot -window root; } ||
+    { screenshot -window root && magick -extract "`randr | cut -d ' ' -f 3`" $output_file $output_file; }
 }
 
 pl() {
@@ -48,29 +31,35 @@ sound() {
     fi
 }
 
-screenshot() { import "$@" $dir2 && sound; }
-
-randr() { xrandr | grep ' connected' | sed 's/ primary//g' | tail -$(expr $(printmon) + 1) | head -1; }
+screenshot() { import "$@" $output_file && sound; }
+randr() { [ -z $monitor ] && monitor=`printmon` ; xrandr | grep ' connected' | sed 's/ primary//g' | tail -$(expr $monitor + 1) | head -1; }
 
 help() {
-    printf "Usage:	magickshot [options]
+    echo -n "Usage:	magickshot [options] output_directory/output_file
 
 Options:
- -s|--selection │ Take a screenshot of the selection
- -w|--window    │ Take a screenshot of the specified window (default is focused window)
- -m|--monitor   │ Take a screenshot of the focused monitor
- -d|--display   │ Take a screenshot of the entire display
- -h|--help	│ Print this help message and exit
+-s|--selection │ Take a screenshot of the selection
+-w|--window    │ Take a screenshot of the specified window (default is focused window)
+-m|--monitor   │ Take a screenshot of the specified monitor (default is focused monitor)
+-d|--display   │ Take a screenshot of the entire display
+               │
+-t|--title     │ Specify the title format (default is %Y-%m-%d_%R:%S)
+               │
+-h|--help      │ Print this help message and exit
 
-Use both the selection and window arguments at the same time and you will be able to use the cursor to select a specific window to take a screenshot of.
+Use both the selection and window arguments at the same time and you will be able to use the cursor to select a specific window to take a screenshot of. The default output file is \`~/.local/share/magickshot/Screenshots/import-$title.png\`.
 "
 }
 
 parse_opts() {
+    : "${config_dir:=${XDG_CONFIG_HOME:-$HOME/.config}/`basename $0`}"
+    : "${config_file:=$config_dir/`basename $0`.conf}"
+    [ -f "$config_file" ] && . "$config_file"
+
     die() { echo "$*" >&2; exit 2; }  # complain to STDERR and exit with error
     needs_arg() { [ -z "$OPTARG" ] && die "No arg for --$OPT option"; }
 
-    while getopts hswmd-: OPT; do
+    while getopts hswmt:d-: OPT; do
 	# support long options: https://stackoverflow.com/a/28466267/519360
 	if [ "$OPT" = "-" ]; then   # long option: reformulate OPT and OPTARG
 	    OPT="${OPTARG%%=*}"       # extract long option name
@@ -80,14 +69,19 @@ parse_opts() {
 	case "$OPT" in
 	    h | help)     	help=1 ;;
 	    s | selection)	selection=1 ;;
-	    w | window)		window=1 ;;
-	    m | monitor)	monitor=1 ;;
+	    w | window)		shift ; [ -n "$1" ] && [ "$1" -eq "$1" ] 2> /dev/null && window="$1" && shift ||\
+				window=`xdotool getactivewindow` ;;
+	    m | monitor)	shift ; [ -n "$1" ] && [ "$1" -eq "$1" ] 2> /dev/null && monitor="$1" && shift ;;
 	    d | display)	display=1 ;;
+	    t | title)		needs_arg ; title="`date +$OPTARG`" ;;
 	    ??*)          	die "Illegal option --$OPT" ;;  # bad long option
 	    ?)            	exit 2 ;;  # bad short option (error reported via getopts)
 	esac
     done
     shift $((OPTIND-1)) # remove parsed options and args from $@ list
+
+    { [ -d "$1" ] && output_directory="$1"; } ||
+    { [ -n "$1" ] && output_file="$1"; }
 }
 
 main "$@"
