@@ -7,12 +7,12 @@ main() {
     [ -z "$title" ] && title="$(date +'%Y-%m-%d_%R:%S')"
     [ -z "$output_file" ] && output_file=$output_directory/import-$title.png
 
-    { [ -n "$help" ] && help; } ||
-    { [ -n "$selection" -a -n "$window" ] && screenshot -window $(xdotool selectwindow); } ||
-    { [ -n "$selection" ] && xdotool mousemove_relative 1 0 && xdotool mousemove_relative -- -1 0 && screenshot; } ||
-    { [ -n "$window" ] && screenshot -window "$window"; } ||
-    { [ -n "$display" ] && screenshot -window root; } ||
-    { screenshot -window root && magick -extract "$(randr | cut -d ' ' -f 3)" $output_file $output_file; }
+    if [ -n "$help" ]; then help
+    elif [ -n "$selection" -a -n "$window" ]; then screenshot -window $(xdotool selectwindow)
+    elif [ -n "$selection" ]; then xdotool mousemove_relative 1 0 && xdotool mousemove_relative -- -1 0 && screenshot
+    elif [ -n "$window" ]; then screenshot -window "$window"
+    elif [ -n "$display" ]; then screenshot -window root
+    else screenshot -window root && magick -extract "$(randr | cut -d ' ' -f 3)" $output_file $output_file; fi
 }
 
 pl() {
