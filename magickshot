@@ -47,7 +47,7 @@ Options:
                │
 -h|--help      │ Print this help message and exit
 
-Use both the selection and window arguments at the same time and you will be able to use the cursor to select a specific window to take a screenshot of. The default output file is \$(~/.local/share/magickshot/Screenshots/import-$title.png\).
+Use both the selection and window arguments at the same time and you will be able to use the cursor to select a specific window to take a screenshot of. The default output file is \`~/.local/share/magickshot/Screenshots/import-$title.png\`.
 "
 }
 
