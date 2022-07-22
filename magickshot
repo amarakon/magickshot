@@ -26,7 +26,7 @@ sound() {
     pl $sound_success || pl $sound_failure
 }
 
-screenshot() { import "$@" $output_file && sound; }
+screenshot() { import "$@" $output_file && [ -n "$notify" -a ! -n "$no_notify" ] && sound; }
 randr() { [ -z $monitor ] && monitor=$(printmon) ; xrandr | grep ' connected' | sed 's/ primary//g' | tail -$(expr $monitor + 1) | head -1; }
 
 help() {
@@ -39,6 +39,9 @@ Options:
 -d|--display   │ Take a screenshot of the entire display
                │
 -t|--title     │ Specify the title format (default is %Y-%m-%d_%R:%S)
+               │
+-n|--notify    │ Play a notification sound
+   --no-notify │ Do not notify (always overrides \`--notify\`)
                │
 -h|--help      │ Print this help message and exit
 
@@ -54,7 +57,7 @@ parse_opts() {
     die() { echo "$*" >&2; exit 2; }  # complain to STDERR and exit with error
     needs_arg() { [ -z "$OPTARG" ] && die "No arg for --$OPT option"; }
 
-    while getopts hswmt:d-: OPT; do
+    while getopts hnswmt:d-: OPT; do
 	# support long options: https://stackoverflow.com/a/28466267/519360
 	if [ "$OPT" = "-" ]; then   # long option: reformulate OPT and OPTARG
 	    OPT="${OPTARG%%=*}"       # extract long option name
@@ -63,6 +66,8 @@ parse_opts() {
 	fi
 	case "$OPT" in
 	    h | help)     	help=1 ;;
+	    n | notify)		notify=1 ;;
+	    no-notify)		no_notify=1 ;;
 	    s | selection)	selection=1 ;;
 	    w | window)		shift ; [ -n "$1" ] && [ "$1" -eq "$1" ] 2> /dev/null && window="$1" && shift ||\
 				window=$(xdotool getactivewindow) ;;
