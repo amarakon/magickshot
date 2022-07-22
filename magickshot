@@ -15,18 +15,23 @@ main() {
     else screenshot -window root && magick -extract "$(randr | cut -d ' ' -f 3)" $output_file $output_file; fi
 }
 
-sound() {
-    pl() { [ -z $PLAYER ] && PLAYER="mpv" ; setsid $PLAYER --really-quiet --pause=no --keep-open=no "$@" &> /dev/null; }
+screenshot() {
+    pl() {
+	[ -z $PLAYER ] && PLAYER="mpv"
+	[ -n "$notify" -a ! -n "$no_notify" ] && setsid $PLAYER --really-quiet --pause=no --keep-open=no "$@" &> /dev/null
+    }
 
     [ ! -d "$sound_directory" ] && sound_directory=/usr/share/sounds/freedesktop/stereo
     [ ! -d "$sound_directory" ] && sound_directory=/usr/share/sounds/$(ls -t /usr/share/sounds/ | head -1)/stereo
 
     sound_success=$sound_directory/camera-shutter.*
     sound_failure=$sound_directory/dialog-error.*
-    pl $sound_success || pl $sound_failure
+
+    import "$@" $output_file &&
+	{ pl $sound_success && if [ "$location" != true ]; then echo "$output_file" | sed 's|^./||'; fi; } ||
+	    pl $sound_failure
 }
 
-screenshot() { import "$@" $output_file && [ -n "$notify" -a ! -n "$no_notify" ] && sound; }
 randr() { [ -z $monitor ] && monitor=$(printmon) ; xrandr | grep ' connected' | sed 's/ primary//g' | tail -$(expr $monitor + 1) | head -1; }
 
 help() {
@@ -81,7 +86,7 @@ parse_opts() {
     shift $((OPTIND-1)) # remove parsed options and args from $@ list
 
     { [ -d "$1" ] && output_directory="$1"; } ||
-    { [ -n "$1" ] && output_file="$1"; }
+    { [ -n "$1" ] && location=true output_file="$1"; }
 }
 
 main "$@"
