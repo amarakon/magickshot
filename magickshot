@@ -15,20 +15,15 @@ main() {
     else screenshot -window root && magick -extract "$(randr | cut -d ' ' -f 3)" $output_file $output_file; fi
 }
 
-pl() {
-    [ -z $PLAYER ] && PLAYER="mpv"
-    setsid $PLAYER --really-quiet --pause=no --keep-open=no "$@" &>/dev/null
-}
-
 sound() {
-    sound_dir=/usr/share/sounds/deepin/stereo
+    pl() { [ -z $PLAYER ] && PLAYER="mpv" ; setsid $PLAYER --really-quiet --pause=no --keep-open=no "$@" &> /dev/null; }
 
-    if [ -d $sound_dir ]; then
-	sound_1=$sound_dir/camera-shutter.wav
-	sound_2=$sound_dir/dialog-error.wav
+    [ ! -d "$sound_directory" ] && sound_directory=/usr/share/sounds/freedesktop/stereo
+    [ ! -d "$sound_directory" ] && sound_directory=/usr/share/sounds/$(ls -t /usr/share/sounds/ | head -1)/stereo
 
-	pl $sound_1 || pl $sound_2
-    fi
+    sound_success=$sound_directory/camera-shutter.*
+    sound_failure=$sound_directory/dialog-error.*
+    pl $sound_success || pl $sound_failure
 }
 
 screenshot() { import "$@" $output_file && sound; }

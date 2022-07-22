@@ -90,4 +90,8 @@ configuration:
 ``` sh
 output_directory=~/Images/Screenshots
 title="%Y-%d_%R:%S"
+
+sound_directory=/usr/share/sounds/deepin/stereo
+sound_success=$sound_directory/complete-print.wav
+sound_failure=$sound_directory/dialog-error-serious.wav
 ```
