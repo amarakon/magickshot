@@ -1,10 +1,8 @@
 #!/bin/sh
 
-main() {
-    parse_opts "$@"
-
+main() { parse_opts "$@"
     [ -z "$output_directory" ] && output_directory=~/.local/share/magickshot/Screenshots
-    [ -z "$title" ] && title="$(date +'%Y-%m-%d_%R:%S')"
+    [ -z "$title" ] && title="%Y-%m-%d_%R:%S" ; title="$(date +$title)"
     [ -z "$output_file" ] && output_file=$output_directory/import-$title.png
 
     if [ -n "$help" ]; then help
@@ -78,7 +76,7 @@ parse_opts() {
 				window=$(xdotool getactivewindow) ;;
 	    m | monitor)	shift ; [ -n "$1" ] && [ "$1" -eq "$1" ] 2> /dev/null && monitor="$1" && shift ;;
 	    d | display)	display=1 ;;
-	    t | title)		needs_arg ; title="$(date +$OPTARG)" ;;
+	    t | title)		needs_arg ; title="$OPTARG" ;;
 	    ??*)          	die "Illegal option --$OPT" ;;  # bad long option
 	    ?)            	exit 2 ;;  # bad short option (error reported via getopts)
 	esac
