@@ -2,7 +2,7 @@
 
 main() { parse_opts "$@"
     [ -z "$output_directory" ] && output_directory=~/.local/share/magickshot/Screenshots
-    [ -z "$title" ] && title="%Y-%m-%d_%R:%S" ; title="$(date +$title)"
+    [ -z "$title" ] && title="%F_%R:%S" ; title="$(date +$title)"
     [ -z "$output_file" ] && output_file=$output_directory/import-$title.png
 
     if [ -n "$help" ]; then help
@@ -41,7 +41,7 @@ Options:
 -m|--monitor   │ Take a screenshot of the specified monitor (default is focused monitor)
 -d|--display   │ Take a screenshot of the entire display
                │
--t|--title     │ Specify the title format (default is %Y-%m-%d_%R:%S)
+-t|--title     │ Specify the title format (default is %F_%R:%S)
                │
 -n|--notify    │ Play a notification sound
    --no-notify │ Do not notify (always overrides \`--notify\`)
