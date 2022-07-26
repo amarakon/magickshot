@@ -5,18 +5,18 @@ main() { parse_opts "$@"
     [ -z "$title" ] && title="%F_%R:%S" ; title="$(date +$title)"
     [ -z "$output_file" ] && output_file=$output_directory/import-$title.png
 
-    if [ -n "$help" ]; then help
-    elif [ -n "$selection" -a -n "$window" ]; then screenshot -window $(xdotool selectwindow)
-    elif [ -n "$selection" ]; then xdotool mousemove_relative 1 0 && xdotool mousemove_relative -- -1 0 && screenshot
-    elif [ -n "$window" ]; then screenshot -window "$window"
-    elif [ -n "$display" ]; then screenshot -window root
+    if [ "$help" = true ]; then help
+    elif [ "$selection" = true -a "$window" = true ]; then screenshot -window $(xdotool selectwindow)
+    elif [ "$selection" = true ]; then xdotool mousemove_relative 1 0 && xdotool mousemove_relative -- -1 0 && screenshot
+    elif [ "$window" = true ]; then screenshot -window "$window"
+    elif [ "$display" = true ]; then screenshot -window root
     else screenshot -window root && magick -extract "$(randr | cut -d ' ' -f 3)" $output_file $output_file; fi
 }
 
 screenshot() {
     pl() {
 	[ -z $PLAYER ] && PLAYER="mpv"
-	[ -n "$notify" -a ! -n "$no_notify" ] && setsid $PLAYER --really-quiet --pause=no --keep-open=no "$@" &> /dev/null
+	[ "$notify" = true ] && setsid $PLAYER --really-quiet --pause=no --keep-open=no "$@" &> /dev/null
     }
 
     [ ! -d "$sound_directory" ] && sound_directory=/usr/share/sounds/freedesktop/stereo
@@ -36,17 +36,15 @@ help() {
     echo -n "Usage:	magickshot [options] output_directory/output_file
 
 Options:
--s|--selection │ Take a screenshot of the selection
--w|--window    │ Take a screenshot of the specified window (default is focused window)
--m|--monitor   │ Take a screenshot of the specified monitor (default is focused monitor)
--d|--display   │ Take a screenshot of the entire display
-               │
--t|--title     │ Specify the title format (default is %F_%R:%S)
-               │
--n|--notify    │ Play a notification sound
-   --no-notify │ Do not notify (always overrides \`--notify\`)
-               │
--h|--help      │ Print this help message and exit
+-s|--selection         │ Take a screenshot of the selection
+-w|--window            │ Take a screenshot of the specified window (default is focused window)
+-m|--monitor           │ Take a screenshot of the specified monitor (default is focused monitor)
+-d|--display           │ Take a screenshot of the entire display
+                       │
+-t|--title             │ Specify the title format (default is %F_%R:%S)
+-n|--notify=true|false │ Play a notification sound (optional argument)
+                       │
+-h|--help              │ Print this help message and exit
 
 Use both the selection and window arguments at the same time and you will be able to use the cursor to select a specific window to take a screenshot of. The default output file is \`~/.local/share/magickshot/Screenshots/import-$title.png\`.
 "
@@ -68,14 +66,17 @@ parse_opts() {
 	    OPTARG="${OPTARG#=}"      # if long option argument, remove assigning `=`
 	fi
 	case "$OPT" in
-	    h | help)     	help=1 ;;
-	    n | notify)		notify=1 ;;
-	    no-notify)		no_notify=1 ;;
-	    s | selection)	selection=1 ;;
-	    w | window)		shift ; [ -n "$1" ] && [ "$1" -eq "$1" ] 2> /dev/null && window="$1" && shift ||\
+	    h | help)     	help=true ;;
+	    n | notify)
+		shift ; [ $(printf "$OPT" | wc -c) -eq 1 ] && OPTARG="$1"
+		case "$OPTARG" in true | false) notify="$OPTARG" ;; *) notify=true ;; esac
+		[ -n "$1" -a "$OPTARG" = "$1" -a "$notify" = "$OPTARG" ] && shift
+		;;
+	    s | selection)	selection=true ;;
+	    w | window)		shift ; [ -n "$1" ] && [ "$1" -eq "$1" ] 2> /dev/null && window="$1" && shift ||
 				window=$(xdotool getactivewindow) ;;
 	    m | monitor)	shift ; [ -n "$1" ] && [ "$1" -eq "$1" ] 2> /dev/null && monitor="$1" && shift ;;
-	    d | display)	display=1 ;;
+	    d | display)	display=true ;;
 	    t | title)		needs_arg ; title="$OPTARG" ;;
 	    ??*)          	die "Illegal option --$OPT" ;;  # bad long option
 	    ?)            	exit 2 ;;  # bad short option (error reported via getopts)
