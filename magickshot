@@ -80,7 +80,12 @@ parse_opts() {
 		esac
 		[ -n "$1" -a "$OPTARG" = "$1" -a "$window" = "$OPTARG" ] && shift
 		;;
-	    m | monitor)	shift ; [ -n "$1" ] && [ "$1" -eq "$1" ] 2> /dev/null && monitor="$1" && shift ;;
+	    m | monitor)
+		shift
+    		[ $(printf "$OPT" | wc -c) -eq 1 ] && OPTARG="$1"
+		case "$OPTARG" in ''|*[!0-9]*) ;; *) monitor="$OPTARG" ;; esac
+		[ -n "$1" -a "$OPTARG" = "$1" -a "$monitor" = "$OPTARG" ] && shift
+		;;
 	    d | display)	display=true ;;
 	    t | title)		needs_arg ; title="$OPTARG" ;;
 	    ??*)          	die "Illegal option --$OPT" ;;  # bad long option
