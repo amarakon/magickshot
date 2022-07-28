@@ -32,8 +32,7 @@ screenshot() {
 
 randr() { [ -z $monitor ] && monitor=$(printmon) ; xrandr | grep ' connected' | sed 's/ primary//g' | tail -$(expr $monitor + 1) | head -1; }
 
-help() {
-    printf "Usage:	magickshot [options] output_directory/output_file
+help() { printf "Usage:	magickshot [options] output_directory/output_file
 
 Options:
 -s|--selection │ Take a screenshot of the selection
@@ -48,8 +47,7 @@ Options:
 -h|--help      │ Print this help message and exit
 
 Use both the selection and window arguments at the same time and you will be able to use the cursor to select a specific window to take a screenshot of. The default output file is \`~/.local/share/magickshot/Screenshots/import-$title.png\`.
-"
-}
+"; }
 
 parse_opts() {
     : "${config_dir:=${XDG_CONFIG_HOME:-$HOME/.config}/$(basename $0)}"
