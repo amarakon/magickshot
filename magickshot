@@ -26,13 +26,13 @@ screenshot() {
     sound_failure=$sound_directory/dialog-error.*
 
     import "$@" $output_file &&
-	{ pl $sound_success && if [ "$location" != true ]; then echo "$output_file" | sed 's|^./||'; fi; } ||
+	{ pl $sound_success && if [ "$location" != true ]; then printf '%s\n' "$output_file" | sed 's|^./||'; fi; } ||
 	    pl $sound_failure
 }
 
 randr() { [ -z $monitor ] && monitor=$(printmon) ; xrandr | grep ' connected' | sed 's/ primary//g' | tail -$(expr $monitor + 1) | head -1; }
 
-help() { printf "Usage:	magickshot [options] output_directory/output_file
+help() { printf '%s' "Usage:	magickshot [options] output_directory/output_file
 
 Options:
 -s|--selection │ Take a screenshot of the selection
@@ -40,7 +40,7 @@ Options:
 -m|--monitor   │ Take a screenshot of the specified monitor (default is focused monitor)
 -d|--display   │ Take a screenshot of the entire display
                │
--t|--title     │ Specify the title format (default is %%F_%%R:%%S)
+-t|--title     │ Specify the title format (default is %F_%R:%S)
 -n|--notify    │ Play a notification sound (optional argument)
    --no-notify │ Do not notify (always overrides \`--notify\`)
                │
