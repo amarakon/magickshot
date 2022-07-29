@@ -41,7 +41,7 @@ Options:
 -d|--display   │ Take a screenshot of the entire display
                │
 -t|--title     │ Specify the title format (default is %F_%R:%S)
--n|--notify    │ Play a notification sound (optional argument)
+-n|--notify    │ Play a notification sound
    --no-notify │ Do not notify (always overrides \`--notify\`)
                │
 -h|--help      │ Print this help message and exit
