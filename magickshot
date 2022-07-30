@@ -6,11 +6,18 @@ main() { parse_opts "$@"
     [ -z "$output_file" ] && output_file=$output_directory/import-$title.png
 
     if [ "$help" = true ]; then help
-    elif [ "$selection" = true -a "$window" = true ]; then screenshot -window $(xdotool selectwindow)
-    elif [ "$selection" = true ]; then xdotool mousemove_relative 1 0 && xdotool mousemove_relative -- -1 0 && screenshot
+    elif [ "$selection" = true -a "$window" = true ]; then
+	screenshot -window $(xdotool selectwindow)
+    elif [ "$selection" = true ]; then
+	xdotool mousemove_relative 1 0 && xdotool mousemove_relative -- -1 0
+	screenshot
     elif [ -n "$window" ]; then screenshot -window "$window"
     elif [ "$display" = true ]; then screenshot -window root
-    else screenshot -window root && magick -extract "$(randr | cut -d ' ' -f 3)" $output_file $output_file; fi
+    else
+	screenshot -window root &&
+	    magick -extract "$(randr | cut -d " " -f 3)"\
+	    $output_file $output_file
+    fi
 }
 
 screenshot() {
@@ -26,25 +33,32 @@ screenshot() {
     sound_failure=$sound_directory/dialog-error.*
 
     import "$@" $output_file &&
-	{ pl $sound_success && if [ "$location" != true ]; then printf '%s\n' "$output_file" | sed 's|^./||'; fi; } ||
-	    pl $sound_failure
+	{ pl $sound_success
+	    if [ "$location" != true ]; then
+		printf '%s\n' "$output_file" | sed 's|^./||'
+	    fi
+	} || pl $sound_failure
 }
 
-randr() { [ -z $monitor ] && monitor=$(printmon) ; xrandr | grep ' connected' | sed 's/ primary//g' | tail -$(expr $monitor + 1) | head -1; }
+randr() {
+    [ -z $monitor ] && monitor=$(printmon)
+    xrandr | grep ' connected' | sed 's/ primary//g' |
+	tail -$(expr $monitor + 1) | head -1
+}
 
-help() { printf '%s' "Usage:	magickshot [options] output_directory/output_file
+help() { printf 'Usage:\t%s' "magickshot [options] output_directory/output_file
 
 Options:
--s|--selection │ Take a screenshot of the selection
--w|--window    │ Take a screenshot of the specified window (default is focused window)
--m|--monitor   │ Take a screenshot of the specified monitor (default is focused monitor)
--d|--display   │ Take a screenshot of the entire display
-               │
--t|--title     │ Specify the title format (default is %F_%R:%S)
--n|--notify    │ Play a notification sound
-   --no-notify │ Do not notify (always overrides \`--notify\`)
-               │
--h|--help      │ Print this help message and exit
+-s|--selection       │ Sceenshot the selection
+-w|--window=WINDOW   │ Screenshot the specified window (default: focused)
+-m|--monitor=MONITOR │ Screenshot the specified monitor (default: focused)
+-d|--display         │ Screenshot the entire display
+                     │
+-t|--title=TITLE     │ Specify the title format (default is %F_%R:%S)
+-n|--notify          │ Play a notification sound
+   --no-notify       │ Do not notify (always overrides \`--notify\`)
+                     │
+-h|--help            │ Print this help message and exit
 
 Use both the selection and window arguments at the same time and you will be able to use the cursor to select a specific window to take a screenshot of. The default output file is \`~/.local/share/magickshot/Screenshots/import-$title.png\`.
 "; }
@@ -54,15 +68,15 @@ parse_opts() {
     : "${config_file:=$config_dir/$(basename $0).conf}"
     [ -f "$config_file" ] && . "$config_file"
 
-    die() { printf "$*\n" >&2; exit 2; }  # complain to STDERR and exit with error
+    die() { printf "$*\n" >&2; exit 2; }
     needs_arg() { [ -z "$OPTARG" ] && die "No arg for --$OPT option"; }
 
     while getopts hnswmt:d-: OPT; do
-	# support long options: https://stackoverflow.com/a/28466267/519360
-	if [ "$OPT" = "-" ]; then   # long option: reformulate OPT and OPTARG
-	    OPT="${OPTARG%%=*}"       # extract long option name
-	    OPTARG="${OPTARG#$OPT}"   # extract long option argument (may be empty)
-	    OPTARG="${OPTARG#=}"      # if long option argument, remove assigning `=`
+	# Support long options: https://stackoverflow.com/a/28466267/519360
+	if [ "$OPT" = "-" ]; then
+	    OPT="${OPTARG%%=*}"
+	    OPTARG="${OPTARG#$OPT}"
+	    OPTARG="${OPTARG#=}"
 	fi
 	case "$OPT" in
 	    h | help)     	help=true ;;
@@ -76,21 +90,21 @@ parse_opts() {
 		    ''|*[!0-9]*)	window=$(xdotool getactivewindow) ;;
 		    *)			window="$OPTARG" ;;
 		esac
-		[ -n "$1" -a "$OPTARG" = "$1" -a "$window" = "$OPTARG" ] && shift
+		[ -n "$1" -a "$OPTARG" = "$1" -a "$window" = "$1" ] && shift
 		;;
 	    m | monitor)
 		shift
     		[ $(printf "$OPT" | wc -c) -eq 1 ] && OPTARG="$1"
 		case "$OPTARG" in ''|*[!0-9]*) ;; *) monitor="$OPTARG" ;; esac
-		[ -n "$1" -a "$OPTARG" = "$1" -a "$monitor" = "$OPTARG" ] && shift
+		[ -n "$1" -a "$OPTARG" = "$1" -a "$monitor" = "$1" ] && shift
 		;;
 	    d | display)	display=true ;;
 	    t | title)		needs_arg ; title="$OPTARG" ;;
-	    ??*)          	die "Illegal option --$OPT" ;;  # bad long option
-	    ?)            	exit 2 ;;  # bad short option (error reported via getopts)
+	    ??*)          	die "Illegal option --$OPT" ;;
+	    ?)            	exit 2 ;;
 	esac
     done
-    shift $((OPTIND-1)) # remove parsed options and args from $@ list
+    shift $((OPTIND-1))
 
     { [ -d "$1" ] && output_directory="$1"; } ||
     { [ -n "$1" ] && location=true output_file="$1"; }
