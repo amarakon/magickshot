@@ -54,7 +54,7 @@ Options:
 -m|--monitor=MONITOR │ Screenshot the specified monitor (default: focused)
 -d|--display         │ Screenshot the entire display
                      │
--t|--title=TITLE     │ Specify the title format (default is %F_%R:%S)
+-t|--title=TITLE     │ Specify the title format (default: %F_%R:%S)
 -n|--notify          │ Play a notification sound
    --no-notify       │ Do not notify (always overrides \`--notify\`)
                      │
