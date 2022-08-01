@@ -68,7 +68,7 @@ parse_opts() {
     : "${config_file:=$config_dir/$(basename $0).conf}"
     [ -f "$config_file" ] && . "$config_file"
 
-    die() { printf "$*\n" >&2; exit 2; }
+    die() { printf '%s\n' "$*" >&2; exit 2; }
     needs_arg() { [ -z "$OPTARG" ] && die "No arg for --$OPT option"; }
 
     while getopts hnswmt:d-: OPT; do
@@ -85,7 +85,7 @@ parse_opts() {
 	    s | selection)	selection=true ;;
 	    w | window)
 		shift
-		[ $(printf "$OPT" | wc -c) -eq 1 ] && OPTARG="$1"
+		[ $(printf '%s' "$OPT" | wc -c) -eq 1 ] && OPTARG="$1"
 		case "$OPTARG" in
 		    ''|*[!0-9]*)	window=$(xdotool getactivewindow) ;;
 		    *)			window="$OPTARG" ;;
@@ -94,7 +94,7 @@ parse_opts() {
 		;;
 	    m | monitor)
 		shift
-    		[ $(printf "$OPT" | wc -c) -eq 1 ] && OPTARG="$1"
+    		[ $(printf '%s' "$OPT" | wc -c) -eq 1 ] && OPTARG="$1"
 		case "$OPTARG" in ''|*[!0-9]*) ;; *) monitor="$OPTARG" ;; esac
 		[ -n "$1" -a "$OPTARG" = "$1" -a "$monitor" = "$1" ] && shift
 		;;
