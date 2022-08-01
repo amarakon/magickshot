@@ -83,16 +83,16 @@ parse_opts() {
 	    OPTARG="${OPTARG#=}"
 	fi
 	case "$OPT" in
-	    h | help)     	help=true ;;
-	    n | notify)		notify=true ;;
-	    no-notify)		notify=false ;;
-	    s | selection)	selection=true ;;
+	    h | help) help=true ;;
+	    n | notify) notify=true ;;
+	    no-notify) notify=false ;;
+	    s | selection) selection=true ;;
 	    w | window)
 		shift
 		[ $(printf '%s' "$OPT" | wc -c) -eq 1 ] && OPTARG="$1"
 		case "$OPTARG" in
-		    ''|*[!0-9]*)	window=$(xdotool getactivewindow) ;;
-		    *)			window="$OPTARG" ;;
+		    ''|*[!0-9]*) window=$(xdotool getactivewindow) ;;
+		    *) window="$OPTARG" ;;
 		esac
 		[ -n "$1" -a "$OPTARG" = "$1" -a "$window" = "$1" ] && shift
 		;;
@@ -102,13 +102,13 @@ parse_opts() {
 		case "$OPTARG" in ''|*[!0-9]*) ;; *) monitor="$OPTARG" ;; esac
 		[ -n "$1" -a "$OPTARG" = "$1" -a "$monitor" = "$1" ] && shift
 		;;
-	    d | display)	display=true ;;
-	    t | title)		needs_arg ; title="$OPTARG" ;;
+	    d | display) display=true ;;
+	    t | title) needs_arg ; title="$OPTARG" ;;
 	    ??*)
 		printf '%s\n' "Illegal option --$OPT" >&2
 		exit 2
 		;;
-	    ?)            	exit 2 ;;
+	    ?) exit 2 ;;
 	esac
     done
     shift $((OPTIND-1))
